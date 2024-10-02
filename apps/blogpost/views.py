@@ -17,6 +17,7 @@ from drf_spectacular.utils import extend_schema
 class BlogPostViewset(viewsets.ModelViewSet):
     queryset = BlogPost.objects.all()
 
+    @extend_schema()
     def get_serializer_class(self, *args, **kwargs):
         if self.action in ["get_post_likers"]:
             return PostLikersSerilaizer
