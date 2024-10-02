@@ -6,12 +6,9 @@ from rest_framework.response import Response
 from apps.user.models import User
 from apps.user.serializers import UserSerializer, CustomTokenObtainPairSerializer, FollowersSerilaizer
 
-from apps.blogpost.models import BlogPost
-
 from utils.general_utils.soft_delete import delete_instance
 
 from django.contrib.auth.models import AnonymousUser
-
 
 class RegisterUserView(generics.CreateAPIView):
     queryset = User.objects.all()

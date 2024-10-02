@@ -12,12 +12,10 @@ from utils.general_utils.soft_delete import delete_instance
 from django.contrib.auth.models import AnonymousUser
 from django.shortcuts import get_object_or_404
 
+from drf_spectacular.utils import extend_schema
+
 class BlogPostViewset(viewsets.ModelViewSet):
     queryset = BlogPost.objects.all()
-    # serializer_class = BlogPostSerilaizer
-
-    # def get_queryset(self):
-    #     return super().get_queryset()
 
     def get_serializer_class(self, *args, **kwargs):
         if self.action in ["get_post_likers"]:
@@ -51,7 +49,7 @@ class BlogPostViewset(viewsets.ModelViewSet):
             return Response(serializer.errors, 400)
         except:
             return Response({"Blogpost not found"}, 401)
-        
+    
     @action(detail=True, methods=["delete"], url_path="delete-blogpost")
     def delete_blogpost(self, request, pk=None):
         try:
@@ -84,9 +82,7 @@ class BlogPostViewset(viewsets.ModelViewSet):
     @action(detail=True, methods=["get"], url_path="get-post-likers")
     def get_post_likers(self, request, pk=None):
         post = get_object_or_404(BlogPost, pk=pk)
-
         serilaizer = self.get_serializer(post)
-
         return Response(serilaizer.data, 200)
 
     
