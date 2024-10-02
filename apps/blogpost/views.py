@@ -22,7 +22,7 @@ class BlogPostViewset(viewsets.ModelViewSet):
             return PostLikersSerilaizer
         return BlogPostSerilaizer
 
-
+    @extend_schema()
     @action(detail=True, methods=["get"], url_path="view-blogpost")
     def view_blogpost(self, request, pk=None): # check arguements that gives into the customized function of a viewset
         obj = self.get_object()
