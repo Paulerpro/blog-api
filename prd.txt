@@ -1,0 +1,28 @@
+OUSTANDING:
+
+when retireving blogposts (include total comment counts to_representation)
+when getting comments (for each include sub_comments count if any)
+
+.......
+user can register wih google auth, login, logout (later reset password, verify email via otp)
+
+Signing up intially use is asked if wants to be a blogger(tick box or yes/no), if yes create as blogger,
+if no continue as auth user
+
+Blogger:
+- can CRUD their blog Posts
+-can restrict access to post type if premium or member depnding on user sub plan or type
+- can be followed by user
+- can follow other bloggers but not themselves
+
+User:
+- can follow/unfollow bloggers to become members of the blogger's community
+- can't be followed
+- can subscribe to premium contents via stripe
+- can like/unlike and comment/uncomment on a blog post
+- 
+
+
+Blog Post and comment can be diff models where a comment has a ForeignKey relation with the B.post and user commenting.
+The comment model have a Foreign relation with itself (with relation_name='replies') to handle cases of replies..
+under a comment (you can identify as theoritically top-level-comment or parent comment)
