@@ -72,7 +72,9 @@ ROOT_URLCONF = 'blog_api.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            'blog_api'
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -203,3 +205,4 @@ SIMPLE_JWT = {
 }
 
 
+GOOGLE_OAUTH_CLIENT_ID=config("GOOGLE_OAUTH_CLIENT_ID")
