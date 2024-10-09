@@ -46,10 +46,10 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'drf_spectacular',
-    # 'allauth',
-    # 'allauth.account',
-    # 'allauth.socialaccount',
-    # 'allauth.socialaccount.providers.google',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 
     #apps
     'apps.blogpost',
@@ -64,7 +64,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'allauth.account.middleware.AccountMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'blog_api.urls'
@@ -123,14 +123,19 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# AUTHENTICATION_BACKENDS = (
-#     # custom auth
-#     "apps.user.auth.EmailBackend",
-#     # Django
-#     "django.contrib.auth.backends.ModelBackend",
-# )
+AUTHENTICATION_BACKENDS = (
 
-# SITE_ID = 3
+    # Django login
+    "django.contrib.auth.backends.ModelBackend",
+
+    # custom auth
+    # "apps.user.auth.EmailBackend",
+
+    # allauth login
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+SITE_ID = 3
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
@@ -158,6 +163,9 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated"
+    ]
 }
 
 SPECTACULAR_SETTINGS = {
@@ -204,7 +212,26 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOWS_CREDENTIALS = True
 
-GOOGLE_OAUTH_CLIENT_ID=config("GOOGLE_OAUTH_CLIENT_ID")
-SECURE_REFERRER_POLICY = 'no-referrer-when-downgrade'
-SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
+LOGIN_REDIRECT_URL = '/callback/'
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'OAUTH_PKCE_ENABLED': True,
+    }
+}
+
+# SOCIALACCOUNT_STORE_TOKENS = True
+
+# GOOGLE_OAUTH_CLIENT_ID=config("GOOGLE_OAUTH_CLIENT_ID")
+# SECURE_REFERRER_POLICY = 'no-referrer-when-downgrade'
+# SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
