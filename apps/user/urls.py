@@ -3,8 +3,6 @@ from apps.user.views import (
     CustomTokenObtainView, 
     TokenRefreshView, 
     RegisterUserView,
-    sign_out,
-    auth_receiver,
     sign_in,
 )
 
@@ -16,6 +14,5 @@ urlpatterns = [
     # Oauth google
     path('sign-in/', sign_in, name='sign_in'),
     # path('sign-out', sign_out, name='sign_out'),
-    path('auth-receiver/', auth_receiver, name='auth_receiver'),
 
 ]

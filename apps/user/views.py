@@ -133,32 +133,32 @@ def sign_in(request):
     return render(request, 'templates/sign_in.html')
 
 
-@csrf_exempt
-@api_view()
-def auth_receiver(request):
-    """
-    Google calls this URL after the user has signed in with their Google account.
-    """
-    print('Inside')
-    print("ree", request.POST)
-    token = request.POST['credential']
+# @csrf_exempt
+# @api_view()
+# def auth_receiver(request):
+#     """
+#     Google calls this URL after the user has signed in with their Google account.
+#     """
+#     print('Inside')
+#     print("ree", request.POST)
+#     token = request.POST['credential']
 
-    try:
-        user_data = id_token.verify_oauth2_token(
-            token, requests.Request(), settings.GOOGLE_OAUTH_CLIENT_ID
-        )
-    except ValueError:
-        return Response(status=403)
+#     try:
+#         user_data = id_token.verify_oauth2_token(
+#             token, requests.Request(), settings.GOOGLE_OAUTH_CLIENT_ID
+#         )
+#     except ValueError:
+#         return Response(status=403)
     
-    print("userdata", user_data)
+#     print("userdata", user_data)
 
-    # In a real app, I'd also save any new user here to the database.
-    # You could also authenticate the user here using the details from Google (https://docs.djangoproject.com/en/4.2/topics/auth/default/#how-to-log-a-user-in)
-    # request.session['user_data'] = user_data
+#     # In a real app, I'd also save any new user here to the database.
+#     # You could also authenticate the user here using the details from Google (https://docs.djangoproject.com/en/4.2/topics/auth/default/#how-to-log-a-user-in)
+#     # request.session['user_data'] = user_data
 
-    return Response({'sign_in'}, 200)
+#     return Response({'sign_in'}, 200)
 
 
-def sign_out(request):
-    del request.session['user_data']
-    return redirect('sign_in')
+# def sign_out(request):
+#     del request.session['user_data']
+#     return redirect('sign_in')
