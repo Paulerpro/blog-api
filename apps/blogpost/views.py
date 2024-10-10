@@ -147,7 +147,3 @@ class CommentViewset(viewsets.ModelViewSet):
             return delete_instance(instance)
         except:
             return Response({"Comment's not found/already deleted"})
-
-
-
-
