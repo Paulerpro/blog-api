@@ -25,7 +25,7 @@ class BlogPostViewset(viewsets.ModelViewSet):
 
     @extend_schema()
     @action(detail=True, methods=["get"], url_path="view-blogpost")
-    def view_blogpost(self, request, pk=None): # check arguements that gives into the customized function of a viewset
+    def view_blogpost(self, request, pk=None): 
         obj = self.get_object()
         serializer = self.get_serializer(obj, many=False)
         return Response(serializer.data, 200)
@@ -34,7 +34,7 @@ class BlogPostViewset(viewsets.ModelViewSet):
     @action(detail=False, methods=["post"], url_path="create-blogpost")
     def create_blogpost(self, request):
         serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid(): # check differnce with serilaizer(exeception=True) sort of
+        if serializer.is_valid(): 
             serializer.save(user=request.user)
             return Response({"Blogpost created successfully"}, 200)
         return Response(serializer.errors, 400)
@@ -43,7 +43,9 @@ class BlogPostViewset(viewsets.ModelViewSet):
     def edit_blogpost(self, request, pk=None):
         try:
             instance = self.get_object()
-            serializer = self.get_serializer(instance, data=request.data, partial=True)
+            serializer = self.get_serializer(
+                instance, data=request.data, partial=True
+                )
             if serializer.is_valid():
                 serializer.save()
                 return Response({"Blogpost updated successfully"}, 200)
@@ -104,7 +106,6 @@ class CommentViewset(viewsets.ModelViewSet):
     
     @action(detail=False, methods=["get"], url_path="get-user-comments")
     def get_user_comments(self, request):
-        # Dry
         if isinstance(request.user, AnonymousUser):
             return Response({"Log in for this action"})
         comments = self.get_queryset().filter(user=request.user)
@@ -118,10 +119,18 @@ class CommentViewset(viewsets.ModelViewSet):
             blogpost = BlogPost.objects.get(id=pk)
             parent_id = request.GET.get("parent_id", None)
             if parent_id:
-                parent_comments = self.get_queryset().filter(id=parent_id)
-                comments = self.get_queryset().filter(blog_post=blogpost, parent__in=parent_comments) # if parent_id else None
+                parent_comments = self.get_queryset().filter(
+                    id=parent_id
+                    )
+                comments = self.get_queryset().filter(
+                    blog_post=blogpost, 
+                    parent__in=parent_comments
+                    )
             else:
-                comments = self.get_queryset().filter(blog_post=blogpost, parent=None)
+                comments = self.get_queryset().filter(
+                    blog_post=blogpost, 
+                    parent=None
+                    )
 
             serializer = self.get_serializer(comments, many=True)
             return Response(serializer.data, 200)
@@ -132,7 +141,11 @@ class CommentViewset(viewsets.ModelViewSet):
     def partial_update(self, request, pk=None):
         try:
             instance = self.get_object()
-            serializer = self.get_serializer(instance, data=request.data, partial=True)
+            serializer = self.get_serializer(
+                instance, 
+                data=request.data, 
+                partial=True
+                )
             if serializer.is_valid():
                 serializer.save()
                 return Response({"comment updated successfully"}, 200)

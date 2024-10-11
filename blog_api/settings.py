@@ -136,8 +136,6 @@ AUTHENTICATION_BACKENDS = (
 )
 
 SITE_ID = 3
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -229,9 +227,3 @@ SOCIALACCOUNT_PROVIDERS = {
         'OAUTH_PKCE_ENABLED': True,
     }
 }
-
-# SOCIALACCOUNT_STORE_TOKENS = True
-
-# GOOGLE_OAUTH_CLIENT_ID=config("GOOGLE_OAUTH_CLIENT_ID")
-# SECURE_REFERRER_POLICY = 'no-referrer-when-downgrade'
-# SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"

@@ -21,15 +21,6 @@ class Comment(BaseModel):
     blog_post = models.ForeignKey('BlogPost', on_delete=models.CASCADE, related_name="comments")
     user = models.ForeignKey('user.User', on_delete=models.CASCADE)
     text = models.TextField()
-    parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True) # research and undertsand more bout field
-    
-# can be liked/unliked
-#     # Status: The current state of the comment (e.g., approved, pending, spam).
-
-
-# class Like(BaseModel):
-#     user = models.ForeignKey('user.User', on_delete=models.CASCADE)
-#     blog_post = models.ForeignKey('BlogPost', on_delete=models.CASCADE)
-
-#     # Unique Constraint: Ensures that a user can only like a particular blog post once to avoid duplicate likes.
-#     # implement system to like comments
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True) 
+#   can be liked/unliked
+#   Status: The current state of the comment (e.g., approved, pending, spam).

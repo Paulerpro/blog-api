@@ -4,11 +4,17 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from apps.user.models import User
-from apps.user.serializers import UserSerializer, CustomTokenObtainPairSerializer, FollowersSerilaizer
+from apps.user.serializers import (
+    UserSerializer, 
+    CustomTokenObtainPairSerializer, 
+    FollowersSerilaizer
+    )
 
 from utils.general_utils.soft_delete import delete_instance
 
 from django.contrib.auth.models import AnonymousUser
+from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
 
 class RegisterUserView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -49,7 +55,9 @@ class UserViewset(viewsets.ModelViewSet):
         if isinstance(request.user, AnonymousUser):
             return Response({"Login to update profile"}, 401)
         user = request.user
-        serializer = self.get_serializer(instance=user, data=request.data, partial=True)
+        serializer = self.get_serializer(
+            instance=user, data=request.data, partial=True
+            )
         if serializer.is_valid():
             serializer.save()
             return Response({"user updated successfully"})
@@ -120,14 +128,7 @@ class UserViewset(viewsets.ModelViewSet):
         except Exception as e:
             return Response({f"{e}"})
 
-from blog_api import settings
-from django.shortcuts import render, redirect
-from django.views.decorators.csrf import csrf_exempt
-from google.oauth2 import id_token
-from google.auth.transport import requests
-from rest_framework.decorators import api_view
 
 @csrf_exempt
-# @api_view()
 def sign_in(request):
     return render(request, 'templates/sign_in.html')

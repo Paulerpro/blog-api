@@ -11,7 +11,6 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('register-user/', RegisterUserView.as_view(), name='register-user'),
 
-    # Oauth google
+    # Oauth google test
     path('sign-in/', sign_in, name='sign_in'),
-
 ]
