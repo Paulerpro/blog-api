@@ -2,6 +2,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework import generics, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from utils.general_utils.api_response_util import APIResponseUtil
 
 from apps.user.models import User
 from apps.user.serializers import (
@@ -42,13 +43,13 @@ class UserViewset(viewsets.ModelViewSet):
     def list_users(self, request):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data, 200)
+        return APIResponseUtil.success_response(200, "", serializer.data)
     
     @action(detail=True, methods=["get"], url_path="view-user-profile")
     def view_user_profile(self, request, pk=None):
         user = self.get_object()
         serializer = self.get_serializer(user)
-        return Response(serializer.data, 200)
+        return APIResponseUtil.success_response(200, "", serializer.data)
 
     @action(detail=False, methods=["put"], url_path="edit-user-profile")
     def edit_user_profile(self, request):
@@ -60,7 +61,7 @@ class UserViewset(viewsets.ModelViewSet):
             )
         if serializer.is_valid():
             serializer.save()
-            return Response({"user updated successfully"})
+            return APIResponseUtil.success_response(204, "user updated successfully", {})
         return Response(serializer.errors, 400)
     
     @action(detail=True, methods=["delete"], url_path="delete-user")
@@ -79,7 +80,7 @@ class UserViewset(viewsets.ModelViewSet):
         if action and instance.status != "ACTIVE":
             instance.status = "ACTIVE"
             instance.save()
-            return Response({"User reactivated successfully"}, 200)
+            return APIResponseUtil.success_response(204, "User reactivated successfully", {})
 
         instance.status = "INACTIVE"
         instance.save()
@@ -96,7 +97,7 @@ class UserViewset(viewsets.ModelViewSet):
 
             serializer = FollowersSerilaizer(data, context=user_id)
 
-            return Response(serializer.data, 200)
+            return Response(200, "", serializer.data)
         except User.DoesNotExist:
             return Response({"User does not exist"}, 404)
 
@@ -107,14 +108,14 @@ class UserViewset(viewsets.ModelViewSet):
             following_id = request.data.get("following_id", None)
             following = User.objects.get(id=following_id)
             action = request.data.get("action", None)
-
+            # DRY
             if action:
                 follower.following.add(following)
                 following.followers.add(follower)
 
                 follower.save()
                 following.save()
-                return Response({"User followed successfully"}, 200)
+                return Response(204, "User followed successfully", {})
             
             if not action:
                 follower.following.remove(following)
@@ -123,7 +124,7 @@ class UserViewset(viewsets.ModelViewSet):
                 follower.save()
                 following.save()
 
-            return Response({"User unfollowed successfully"}, 200)
+            return Response(204, "User unfollowed successfully", {})
         
         except Exception as e:
             return Response({f"{e}"})
