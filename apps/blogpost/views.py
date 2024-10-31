@@ -4,6 +4,8 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
+from utils.general_utils.api_response_util import APIResponseUtil
+
 from apps.blogpost.models import BlogPost, Comment
 from apps.blogpost.serializers import BlogPostSerilaizer, CommentSerializer, PostLikersSerilaizer
 
@@ -28,15 +30,14 @@ class BlogPostViewset(viewsets.ModelViewSet):
     def view_blogpost(self, request, pk=None): 
         obj = self.get_object()
         serializer = self.get_serializer(obj, many=False)
-        return Response(serializer.data, 200)
-
+        return APIResponseUtil.success_response(200, "", serializer.data)
         
     @action(detail=False, methods=["post"], url_path="create-blogpost")
     def create_blogpost(self, request):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid(): 
             serializer.save(user=request.user)
-            return Response({"Blogpost created successfully"}, 200)
+            return APIResponseUtil.success_response(201, "Blogpost created successfully", {})
         return Response(serializer.errors, 400)
 
     @action(detail=True, methods=["put"], url_path="edit-blogpost")
@@ -48,7 +49,7 @@ class BlogPostViewset(viewsets.ModelViewSet):
                 )
             if serializer.is_valid():
                 serializer.save()
-                return Response({"Blogpost updated successfully"}, 200)
+                return APIResponseUtil.success_response(204, "Blogpost updated successfully")
             return Response(serializer.errors, 400)
         except:
             return Response({"Blogpost not found"}, 401)
@@ -59,16 +60,16 @@ class BlogPostViewset(viewsets.ModelViewSet):
             instance = self.get_object()
             return delete_instance(instance)
         except:
-            return Response({"Blogpost not found/already deleted"})
+            return Response({"Blogpost not found/already deleted"}, 404)
 
     @action(detail=False, methods=["get"], url_path="get-blogposts-by-user")
     def get_blogposts_by_user(self, request) -> list:
         try:
             queryset = self.get_queryset().filter(user=request.user)
             serializer = self.get_serializer(queryset, many=True)
-            return Response(serializer.data, 200)
+            return APIResponseUtil.success_response(200, "", serializer.data)
         except Exception as e:
-            return Response(f'{e}')
+            return Response(f'{e}', 404)
         
     @action(detail=False, methods=["put"], url_path="like-or-unlike-post")
     def like_post_or_unlike_post(self, request):
@@ -78,17 +79,16 @@ class BlogPostViewset(viewsets.ModelViewSet):
         post = get_object_or_404(BlogPost, pk=post_id)
         if action == "1":
             post.likes.add(user)
-            return Response({"Post liked succesfully"}, 200)
+            return APIResponseUtil.success_response(204, "Post liked succesfully", {})
         post.likes.remove(user)
-        return Response({"Post unliked succesfully"}, 200)
+        return APIResponseUtil.success_response(204, "Post unliked succesfully", {})
     
     @action(detail=True, methods=["get"], url_path="get-post-likers")
     def get_post_likers(self, request, pk=None):
         post = get_object_or_404(BlogPost, pk=pk)
-        serilaizer = self.get_serializer(post)
-        return Response(serilaizer.data, 200)
+        serializer = self.get_serializer(post)
+        return APIResponseUtil.success_response(200, "", serializer.data)
 
-    
 class CommentViewset(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
@@ -101,7 +101,7 @@ class CommentViewset(viewsets.ModelViewSet):
         if serializer.is_valid():
             parent_comment = self.get_queryset().filter(id=parent_id)[0] if parent_id else None
             serializer.save(user=request.user, parent=parent_comment)
-            return Response({"comment created"}, 200)
+            return APIResponseUtil.success_response(201, "comment created")
         return Response(serializer.errors)
     
     @action(detail=False, methods=["get"], url_path="get-user-comments")
@@ -110,7 +110,7 @@ class CommentViewset(viewsets.ModelViewSet):
             return Response({"Log in for this action"})
         comments = self.get_queryset().filter(user=request.user)
         serializer = self.get_serializer(comments, many=True)
-        return Response(serializer.data, 200)
+        return APIResponseUtil.success_response(200, "", serializer.data)
 
     # get comments by blogpost
     @action(detail=True, methods=["get"], url_path="get-blogpost-comments")
@@ -133,7 +133,7 @@ class CommentViewset(viewsets.ModelViewSet):
                     )
 
             serializer = self.get_serializer(comments, many=True)
-            return Response(serializer.data, 200)
+            return APIResponseUtil.success_response(200, "", serializer.data)
         except Exception as e:
             return Response(f"{e}", 400)
 
@@ -148,10 +148,10 @@ class CommentViewset(viewsets.ModelViewSet):
                 )
             if serializer.is_valid():
                 serializer.save()
-                return Response({"comment updated successfully"}, 200)
+                return APIResponseUtil.success_response(204, "comment updated successfully", {})
             return Response(serializer.errors, 400)
         except:
-            return Response({"comment not found"}, 401)
+            return Response({"comment not found"}, 404)
     
     # delete user comment by id
     def destroy(self, request, pk=None):
@@ -159,4 +159,4 @@ class CommentViewset(viewsets.ModelViewSet):
             instance = self.get_object()
             return delete_instance(instance)
         except:
-            return Response({"Comment's not found/already deleted"})
+            return Response({"Comment's not found/already deleted"}, 404)
