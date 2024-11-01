@@ -2,7 +2,9 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework import generics, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
 from utils.general_utils.api_response_util import APIResponseUtil
+from utils.user_utils.user import UserUtils
 
 from apps.user.models import User
 from apps.user.serializers import (
@@ -54,7 +56,7 @@ class UserViewset(viewsets.ModelViewSet):
     @action(detail=False, methods=["put"], url_path="edit-user-profile")
     def edit_user_profile(self, request):
         if isinstance(request.user, AnonymousUser):
-            return Response({"Login to update profile"}, 401)
+            return APIResponseUtil.error_response(401, "Login to update profile")
         user = request.user
         serializer = self.get_serializer(
             instance=user, data=request.data, partial=True
@@ -62,7 +64,7 @@ class UserViewset(viewsets.ModelViewSet):
         if serializer.is_valid():
             serializer.save()
             return APIResponseUtil.success_response(204, "user updated successfully", {})
-        return Response(serializer.errors, 400)
+        return APIResponseUtil.error_response(400, "", serializer.errors)
     
     @action(detail=True, methods=["delete"], url_path="delete-user")
     def delete_user(self, request, pk=None):
@@ -70,7 +72,7 @@ class UserViewset(viewsets.ModelViewSet):
             instance = self.get_object()
             return delete_instance(instance)
         except Exception as e:
-            return Response(f"{e}")
+            return APIResponseUtil.error_response(500, "", e)
 
     @action(detail=False, methods=["put"], url_path="activate-or-deactivate-account")
     def activate_or_deactivate_account(self, request):
@@ -84,7 +86,7 @@ class UserViewset(viewsets.ModelViewSet):
 
         instance.status = "INACTIVE"
         instance.save()
-        return Response({"User deactivated successfully"}, 200)
+        return APIResponseUtil.success_response(204, "User deactivated successfully", {})
     
     @action(detail=False, methods=["get"], url_path="get-followers-and-following-stat")
     def get_followers_and_following_stat(self, request):
@@ -98,8 +100,8 @@ class UserViewset(viewsets.ModelViewSet):
             serializer = FollowersSerilaizer(data, context=user_id)
 
             return Response(200, "", serializer.data)
-        except User.DoesNotExist:
-            return Response({"User does not exist"}, 404)
+        except Exception as e:
+            return APIResponseUtil.error_response(500, "", e)
 
     @action(detail=False, methods=["post"], url_path="follow-user")
     def follow_user(self, request):
@@ -108,26 +110,11 @@ class UserViewset(viewsets.ModelViewSet):
             following_id = request.data.get("following_id", None)
             following = User.objects.get(id=following_id)
             action = request.data.get("action", None)
-            # DRY
-            if action:
-                follower.following.add(following)
-                following.followers.add(follower)
 
-                follower.save()
-                following.save()
-                return Response(204, "User followed successfully", {})
-            
-            if not action:
-                follower.following.remove(following)
-                following.followers.remove(follower)
-
-                follower.save()
-                following.save()
-
-            return Response(204, "User unfollowed successfully", {})
+            UserUtils.follower_following_logic(follower, following, action)
         
         except Exception as e:
-            return Response({f"{e}"})
+            return APIResponseUtil.error_response(500, "", e)
 
 
 @csrf_exempt
